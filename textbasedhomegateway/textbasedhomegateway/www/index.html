@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="description" content="Text based Home Gateway">
+        <meta name="author" content="Naweli Bharati">
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" href="css/style.css">
+        <!-- Google Tag Manager -->
+            <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-PZWSZ2');</script>
+<!-- End Google Tag Manager -->
+    <title>Controlling the home light with Text Command</title>
+    
+    
+    <style>
+        @import "compass/css3";
+
+        @import url("http://fonts.googleapis.com/css?family=Lato:300,400,700,900");
+        @import url(http://fonts.googleapis.com/css?family=Pacifico);
+
+        body {
+            font-family: "Lato", Helvetica, Arial;
+            font-size: 16px;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+
+        *, *:before, *:after {
+            -webkit-border-sizing: border-box;
+            -moz-border-sizing: border-box;
+            border-sizing: border-box;
+        }
+
+        .container {
+            width: 350px;
+            margin: 50px auto;
+          
+          & > ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+          }
+        }
+
+        // =============================================================================
+        //  Mixins and Variables
+        // =============================================================================
+
+        $blue: #2980B9;
+        $gray: #EEE;
+
+        @mixin ul-nostyle {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        @mixin double-shadow($color) {
+            @include box-shadow(0 1px 0 lighten($color, 10%) inset, 0 -1px 0 darken($color, 10%) inset);
+        }
+
+        @mixin hover-style($color) {
+            &:hover {
+                background: lighten($color, 3%);
+            }
+        }
+
+        @mixin animation($content) {
+          animation: $content;
+          -moz-animation: $content;
+          -webkit-animation: $content;
+        }
+
+        @mixin keyframes($name) {
+          @keyframes #{$name} { @content; }
+          @-moz-keyframes #{$name} { @content; }
+          @-webkit-keyframes #{$name} { @content; }
+        }
+
+        // =============================================================================
+        //  Classes
+        // =============================================================================
+
+        .title {
+          font-family: 'Pacifico';
+          font-weight: norma;
+          font-size: 40px;
+          text-align: center;
+          line-height: 1.4;
+          color: $blue;
+        }
+
+        .dropdown {
+            a {
+                text-decoration: none;
+            }
+
+            [data-toggle="dropdown"] {
+                position: relative;
+                display: block;
+                color: white;
+                background: $blue;
+                @include double-shadow($blue);
+                @include hover-style($blue);
+                @include text-shadow(0 -1px 0 rgba(0,0,0,0.3));
+                padding: 10px;
+
+            }
+            .icon-arrow {
+                position: absolute;
+                display: block;
+                font-size: 0.7em;
+                color: #fff;
+                top: 14px;
+                right: 10px;
+
+                &.open {
+                    @include transform(rotate(-180deg));
+                    @include transition(transform .6s);
+                }
+                &.close {
+                    @include transform(rotate(0deg));
+                    @include transition(transform .6s);
+                }
+
+                &:before {
+                    content: '\25BC';
+                }
+          }
+
+            .dropdown-menu {
+                max-height: 0;
+                overflow: hidden;
+                @include ul-nostyle;
+
+                li {
+                    padding: 0;
+
+                    a {
+                        display: block;
+                        color: darken($gray, 50%);
+                        background: $gray;
+                        @include double-shadow($gray);
+                        @include hover-style($gray);
+                        @include text-shadow(0 -1px 0 rgba(255,255,255,0.3));
+                        padding: 10px 10px;
+                    }
+                }
+            }
+
+            .show, .hide {
+                @include transform-origin(50%, 0%);
+            }
+
+            .show {
+                display: block;
+                max-height: 9999px;
+                @include transform(scaleY(1));
+                @include animation(showAnimation .5s ease-in-out);
+                @include transition(max-height 1s ease-in-out);
+            }
+
+            .hide {
+                max-height: 0;
+                @include transform(scaleY(0));
+                @include animation(hideAnimation .4s ease-out);
+                @include transition(max-height .6s ease-out);
+            }
+        }
+
+        @include keyframes(showAnimation) {
+            0% {
+                @include transform(scaleY(0.1));
+            }
+            40% {
+                @include transform(scaleY(1.04));
+            }
+            60% {
+                @include transform(scaleY(0.98));
+            }
+            80% {
+                @include transform(scaleY(1.04));
+            }
+            100% {
+                @include transform(scaleY(0.98));
+            }               
+            80% {
+                @include transform(scaleY(1.02));
+            }
+            100% {
+                @include transform(scaleY(1));
+            }
+        }
+
+        @include keyframes(hideAnimation) {
+          0% {
+            @include transform(scaleY(1));
+          }
+          60% {
+            @include transform(scaleY(0.98));
+          }
+          80% {
+            @include transform(scaleY(1.02));
+          }
+          100% {
+            @include transform(scaleY(0));
+          }
+        }
+            * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+            body {
+                font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Roboto Light", "Segoe UI Web Light", "Segoe UI Light", "Segoe UI Web Regular", "Segoe UI", Helvetica, Arial, sans-serif; 
+                margin: 1em;
+            }
+            header {
+                margin-bottom: 2em;
+            }
+            h1, h2, h3 {
+                margin: 0;
+                text-rendering: optimizeLegibility;
+            }
+            h1 {
+                font-size: 2.4em;
+                line-height: 1.4em;
+                text-transform: lowercase;
+                font-weight: normal;
+                text-shadow: 1px 2px 0 #fff;
+            }
+            h2 {
+                font-size: 1em;
+                text-transform: uppercase;
+                font-weight: normal;
+                text-shadow: 1px 1px 0 #fff;
+            }
+            footer {
+                position: absolute;
+                bottom: 2em;
+            }
+            #main {
+                margin: 4em auto;
+                text-align: center;
+                position: relative;
+            }
+            button {
+                display: block;
+                font-size: 2em;
+                border-radius: 10px;
+                padding: .3em 1em;
+                position: absolute;
+                top: 50%;
+                left: calc(50% - 100px);
+            }
+    </style>
+
+    </head>
+    <body>
+        <div class="">
+            
+        <section id="main" role="main">
+    <div data-role="page" id="pageone">
+ <div data-role="header">
+   <h1>TEXT BASED HOME CONTROL GATEWAY</h1>
+ </div>
+
+         <div data-role="main" class="ui-content">
+           <input type="button" id = "lightLiving" value="Living room">
+         </div>
+
+         <div data-role="main" class="ui-content">
+           <input type="button" id = "lightPorch" value="porch">
+         </div>
+
+         <div data-role="main" class="ui-content">
+           <input type="button" id = "kitchen" value="Kitchen">
+         </div>
+         <div data-role="main" class="ui-content">
+           <input type="button" id = "washroom" value="Washroom">
+         </div>
+ 
+
+ 
+  
+ <div data-role="footer">
+   <h1>Make life simple</h1>
+ </div>
+</div> 
+                        
+                    
+       </section>
+            
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/pubnub-3.7.1.min.js"></script>
+        
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css">
+        
+        <script src="js/jquery-1.12.0.min.js"></script>
+        <script src="js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+            (function() {
+        // DOM
+        var livingroom = document.getElementById('lightLiving');
+        var porchroom = document.getElementById('lightPorch');
+        var kitchenroom = document.getElementById('kitchen'); 
+        var washroom = document.getElementById('washroom'); 
+
+        // This is the channel name you are subscribing in remote-led.py
+        var channel = 'smarthome';
+        // Init
+        var p = PUBNUB.init({
+            subscribe_key: 'demo',
+            publish_key:   'demo'
+        });
+        // Sending data
+        function smarthome(data) {
+        p.publish({
+            channel: channel, 
+            message: data
+        });
+    }
+
+    // UI EVENTS
+
+    livingroom.addEventListener('click', function(e){
+        smarthome({item: 'light-living', brightness: +this.value});
+    }, false);
+    porchroom.addEventListener('click', function(e){
+        smarthome({item: 'light-porch', brightness: +this.value});
+    }, false);
+    kitchenroom.addEventListener('click', function(e){
+        smarthome({item: 'kitchen', brightness: +this.value});
+    }, false);
+    washroom.addEventListener('click', function(e){
+        smarthome({item: 'washroom', brightness: +this.value});
+    }, false);
+    
+    })();
+        </script>
+    
+    </body>
+</html>
